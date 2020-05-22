@@ -13,6 +13,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetOptTests", "GetOptTests\GetOptTests.csproj", "{0412375C-75C7-4D05-B196-11DB9EACB77E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{5ECF343C-D689-4E3C-BA1A-97E5DDC4D9E1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{9522B74F-700A-485A-A518-940B299193CB}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnet-core.yml = .github\workflows\dotnet-core.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +37,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5ECF343C-D689-4E3C-BA1A-97E5DDC4D9E1} = {A819B696-16C3-43EA-8D5C-455453DBCF5E}
+		{9522B74F-700A-485A-A518-940B299193CB} = {5ECF343C-D689-4E3C-BA1A-97E5DDC4D9E1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {52D527B9-84F3-4D82-B254-49D54170F45A}
