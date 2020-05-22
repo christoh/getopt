@@ -1,4 +1,4 @@
-﻿GetOpt
+GetOpt
 ------
 
 This library serves the purpose to parse options in a command line. It works
