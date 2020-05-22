@@ -116,7 +116,9 @@ namespace De.Hochstaetter.GetOpt
 
             try
             {
-                argument = Convert.ChangeType(stringArgument, optionDefinition.ArgumentType, culture);
+                argument = typeof(Enum).IsAssignableFrom(optionDefinition.ArgumentType)
+                    ? Enum.Parse(optionDefinition.ArgumentType, stringArgument)
+                    : Convert.ChangeType(stringArgument, optionDefinition.ArgumentType, culture);
             }
             catch (Exception e)
             {
