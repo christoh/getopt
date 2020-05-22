@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using De.Hochstaetter.GetOpt;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,12 +17,12 @@ namespace De.Hochstaetter.GetOptTests
             var result = commandLine.ArgumentList(TestOptions.Standard);
 
             Assert.AreEqual(3, result.NonOptions.Count);
-            Assert.AreEqual("Friday",result.NonOptions[0]);
-            Assert.AreEqual("-wSaturday",result.NonOptions[1]);
-            Assert.AreEqual("--work-day=Sunday",result.NonOptions[2]);
+            Assert.AreEqual("Friday", result.NonOptions[0]);
+            Assert.AreEqual("-wSaturday", result.NonOptions[1]);
+            Assert.AreEqual("--work-day=Sunday", result.NonOptions[2]);
 
             var options = result.Options;
-            Assert.AreEqual(7,result.Options.Count);
+            Assert.AreEqual(7, result.Options.Count);
 
             Assert.AreSame(TestOptions.Standard.Single(o => o.ShortName == 'w'), options[0].Definition);
             Assert.AreEqual(WeekDay.Friday, options[0].Argument);
@@ -42,6 +45,35 @@ namespace De.Hochstaetter.GetOptTests
             Assert.AreSame(TestOptions.Standard.Single(o => o.ShortName == 'w'), options[6].Definition);
             Assert.AreEqual(WeekDay.Tuesday, options[6].Argument);
 
+        }
+
+        [TestMethod]
+        public void WorkingDayOutOfRange()
+        {
+            static void CheckForOutOfRange(IList<string> arguments)
+            {
+                var exception = Assert.ThrowsException<ArgumentOutOfRangeException>(() => arguments.ArgumentList(TestOptions.Standard));
+                Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--work-day" : "-w")} must be between Monday and Friday (Parameter 'argument')", exception.Message);
+            }
+
+            CheckForOutOfRange(new[] { "-wSaturday" });
+            CheckForOutOfRange(new[] { "-w", "Sunday" });
+            CheckForOutOfRange(new[] { "--work-day=Sunday" });
+        }
+
+        [TestMethod]
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
+        public void WorkingDayInvalid()
+        {
+            static void CheckForInvalidEnum(IList<string> arguments)
+            {
+                var exception = Assert.ThrowsException<ArgumentException>(() => arguments.ArgumentList(TestOptions.Standard));
+                Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--work-day" : "-w")} must be WeekDay (Parameter 'argument')", exception.Message);
+            }
+
+            CheckForInvalidEnum(new[] { "-wMOnday" });
+            CheckForInvalidEnum(new[] { "-w", "tuesday" });
+            CheckForInvalidEnum(new[] { "--work-day=bullshit" });
         }
     }
 }
