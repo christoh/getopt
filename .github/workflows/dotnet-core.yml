@@ -22,4 +22,4 @@ jobs:
     - name: Build
       run: dotnet build GetOptTests --configuration Release --no-restore
     - name: Test
-      run: dotnet test GetOptTests --no-restore --verbosity normal
+      run: dotnet test GetOptTests --no-restore --no-build --verbosity normal
