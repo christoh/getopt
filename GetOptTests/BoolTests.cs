@@ -46,7 +46,7 @@ namespace De.Hochstaetter.GetOptTests
             static void CheckWrongBoolArguments(IList<string> arguments)
             {
                 var exception = Assert.ThrowsException<ArgumentException>(() => GetOpt.Parse(arguments,TestOptions.Standard));
-                Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--show-minor-errors" : "-e")} must be Boolean (Parameter 'argument')", exception.Message);
+                Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--show-minor-errors" : "-e")} must be Boolean", exception.Message);
             }
 
             CheckWrongBoolArguments(new[] { "-eTrue" });

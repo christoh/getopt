@@ -19,7 +19,7 @@ namespace De.Hochstaetter.CommandLine.Models
             TrueArguments = trueArguments ?? DefaultTrueArguments;
             FalseArguments = falseArguments ?? DefaultFalseArguments;
 
-            if ((options & ParseFlags.CaseInsensitive) != ParseFlags.Default)
+            if (options.CaseInsensitive())
             {
                 TrueArguments = TrueArguments.Select(a => a.ToUpper(Culture)).ToArray();
                 FalseArguments = FalseArguments.Select(a => a.ToUpper(Culture)).ToArray();

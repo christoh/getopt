@@ -13,8 +13,8 @@ namespace De.Hochstaetter.GetOptTests
         [TestMethod]
         public void WorkingDayStandardTests()
         {
-            var commandLine = new[] { "-wFriday", "--work-day=Wednesday", "-vwMonday", "-w", "Tuesday", "Friday", "-vw", "Tuesday", "--", "-wSaturday", "--work-day=Sunday" };
-            var result = GetOpt.Parse(commandLine,TestOptions.Standard);
+            var commandLine = new[] { "-wFriday", "--work-day=Wednesday", "-vwMonday", "-w", "Tuesday", "Friday", "-vw", "Tuesday", "--work-day", "Thursday", "--", "-wSaturday", "--work-day=Sunday" };
+            var result = GetOpt.Parse(commandLine, TestOptions.Standard);
 
             Assert.AreEqual(3, result.NonOptions.Count);
             Assert.AreEqual("Friday", result.NonOptions[0]);
@@ -22,7 +22,7 @@ namespace De.Hochstaetter.GetOptTests
             Assert.AreEqual("--work-day=Sunday", result.NonOptions[2]);
 
             var options = result.Options;
-            Assert.AreEqual(7, result.Options.Count);
+            Assert.AreEqual(8, result.Options.Count);
 
             Assert.AreSame(TestOptions.Standard.Single(o => o.ShortName == 'w'), options[0].Definition);
             Assert.AreEqual(WeekDay.Friday, options[0].Argument);
@@ -45,6 +45,8 @@ namespace De.Hochstaetter.GetOptTests
             Assert.AreSame(TestOptions.Standard.Single(o => o.ShortName == 'w'), options[6].Definition);
             Assert.AreEqual(WeekDay.Tuesday, options[6].Argument);
 
+            Assert.AreSame(TestOptions.Standard.Single(o => o.ShortName == 'w'), options[6].Definition);
+            Assert.AreEqual(WeekDay.Thursday, options[7].Argument);
         }
 
         [TestMethod]
@@ -52,8 +54,8 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForOutOfRange(IList<string> arguments)
             {
-                var exception = Assert.ThrowsException<ArgumentOutOfRangeException>(() => GetOpt.Parse(arguments,TestOptions.Standard));
-                Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--work-day" : "-w")} must be between Monday and Friday (Parameter 'argument')", exception.Message);
+                var exception = Assert.ThrowsException<ArgumentOutOfRangeException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
+                Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--work-day" : "-w")} must be between Monday and Friday", exception.Message);
             }
 
             CheckForOutOfRange(new[] { "-wSaturday" });
@@ -67,13 +69,27 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForInvalidEnum(IList<string> arguments)
             {
-                var exception = Assert.ThrowsException<ArgumentException>(() => GetOpt.Parse(arguments,TestOptions.Standard));
-                Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--work-day" : "-w")} must be WeekDay (Parameter 'argument')", exception.Message);
+                var exception = Assert.ThrowsException<ArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
+                Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--work-day" : "-w")} must be WeekDay", exception.Message);
             }
 
             CheckForInvalidEnum(new[] { "-wMOnday" });
             CheckForInvalidEnum(new[] { "-w", "tuesday" });
             CheckForInvalidEnum(new[] { "--work-day=bullshit" });
+        }
+
+        [TestMethod]
+        public void WorkDayArgumentMissing()
+        {
+            static void CheckForMissingArgument(IList<string> arguments)
+            {
+                var exception = Assert.ThrowsException<ArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
+            }
+
+            CheckForMissingArgument(new[] { "-w" });
+            CheckForMissingArgument(new[] { "--work-day" });
+            CheckForMissingArgument(new[] { "--work-day", "--", "Monday" });
+            CheckForMissingArgument(new[] { "-w", "--", "Tuesday" });
         }
     }
 }
