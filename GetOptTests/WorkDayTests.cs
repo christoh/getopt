@@ -2,19 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using De.Hochstaetter.GetOpt;
+using De.Hochstaetter.CommandLine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace De.Hochstaetter.GetOptTests
 {
     [TestClass]
-    public class UnitTests
+    public class WorkDayTests
     {
         [TestMethod]
         public void WorkingDayStandardTests()
         {
             var commandLine = new[] { "-wFriday", "--work-day=Wednesday", "-vwMonday", "-w", "Tuesday", "Friday", "-vw", "Tuesday", "--", "-wSaturday", "--work-day=Sunday" };
-            var result = commandLine.ArgumentList(TestOptions.Standard);
+            var result = GetOpt.Parse(commandLine,TestOptions.Standard);
 
             Assert.AreEqual(3, result.NonOptions.Count);
             Assert.AreEqual("Friday", result.NonOptions[0]);
@@ -52,7 +52,7 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForOutOfRange(IList<string> arguments)
             {
-                var exception = Assert.ThrowsException<ArgumentOutOfRangeException>(() => arguments.ArgumentList(TestOptions.Standard));
+                var exception = Assert.ThrowsException<ArgumentOutOfRangeException>(() => GetOpt.Parse(arguments,TestOptions.Standard));
                 Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--work-day" : "-w")} must be between Monday and Friday (Parameter 'argument')", exception.Message);
             }
 
@@ -67,7 +67,7 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForInvalidEnum(IList<string> arguments)
             {
-                var exception = Assert.ThrowsException<ArgumentException>(() => arguments.ArgumentList(TestOptions.Standard));
+                var exception = Assert.ThrowsException<ArgumentException>(() => GetOpt.Parse(arguments,TestOptions.Standard));
                 Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--work-day" : "-w")} must be WeekDay (Parameter 'argument')", exception.Message);
             }
 

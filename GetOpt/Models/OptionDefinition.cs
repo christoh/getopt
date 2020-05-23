@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace De.Hochstaetter.GetOpt.Models
+namespace De.Hochstaetter.CommandLine.Models
 {
     public class OptionDefinition
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace De.Hochstaetter.GetOpt.Models
+namespace De.Hochstaetter.CommandLine.Models
 {
     public class ParsedArguments
     {

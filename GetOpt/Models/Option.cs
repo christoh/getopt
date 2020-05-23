@@ -1,8 +1,8 @@
-﻿namespace De.Hochstaetter.GetOpt.Models
+﻿namespace De.Hochstaetter.CommandLine.Models
 {
     public class Option
     {
         public OptionDefinition Definition { get; set; }
-        public object Argument { get; set; }
+        public dynamic Argument { get; set; }
     }
 }
