@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using De.Hochstaetter.CommandLine.Exceptions;
 using De.Hochstaetter.CommandLine.Models;
 
 namespace De.Hochstaetter.CommandLine
@@ -83,12 +84,12 @@ namespace De.Hochstaetter.CommandLine
 
                 if (optionDefinition == null)
                 {
-                    throw new ArgumentException($"Unknown option -{argument[j]}");
+                    throw new GetOptArgumentException(GetOptError.UnknownOption, parameters, null, false, unknownOption: $"-{argument[j]}");
                 }
 
                 if (optionDefinition.HasArgument && argument.Substring(j).Length == 1 && next == null)
                 {
-                    throw new ArgumentException($"Option -{argument[j]} requires an argument");
+                    throw new GetOptArgumentException(GetOptError.MustHaveArgument, parameters, optionDefinition, false);
                 }
 
                 var option = new Option { Definition = optionDefinition };
@@ -104,7 +105,7 @@ namespace De.Hochstaetter.CommandLine
                         false,
                         parameters.Culture
                     );
-                    
+
                     result.Options.Add(option);
                     if (isArgumentOnNextString) { i++; }
                     break;
@@ -131,10 +132,10 @@ namespace De.Hochstaetter.CommandLine
             switch (split.Count)
             {
                 case 1 when optionDefinition.HasArgument && next == null:
-                    throw new ArgumentException($"Option --{split[0]} requires an argument");
+                    throw new GetOptArgumentException(GetOptError.MustHaveArgument, parameters, optionDefinition, true);
 
                 case 2 when !optionDefinition.HasArgument:
-                    throw new ArgumentException($"Option --{split[0]} must not have an argument");
+                    throw new GetOptArgumentException(GetOptError.MustNotHaveArgument, parameters,optionDefinition,false,split[1]);
 
                 default:
                     var option = new Option { Definition = optionDefinition };
@@ -158,15 +159,13 @@ namespace De.Hochstaetter.CommandLine
 
         private dynamic ConvertToTargetType(string stringArgument, OptionDefinition optionDefinition, bool isLongOption, IFormatProvider culture)
         {
-            dynamic argument;
-            var optionName = isLongOption ? $"-{optionDefinition.LongName}" : $"{optionDefinition.ShortName}";
-            var argumentErrorPrefix = $"Argument for option -{optionName} must be ";
+            dynamic argument = null;
 
             try
             {
                 if (optionDefinition.ArgumentType.IsAssignableFrom(typeof(bool)))
                 {
-                    argument = ParseBool(stringArgument, argumentErrorPrefix);
+                    argument = ParseBool(stringArgument, optionDefinition, isLongOption);
                 }
                 else if (typeof(Enum).IsAssignableFrom(optionDefinition.ArgumentType))
                 {
@@ -179,28 +178,22 @@ namespace De.Hochstaetter.CommandLine
             }
             catch (Exception e)
             {
-                throw new ArgumentException($"{argumentErrorPrefix}{optionDefinition.ArgumentType.Name}", e);
+                throw new GetOptArgumentException(GetOptError.TypeMismatch, parameters, optionDefinition, isLongOption, stringArgument, argument, innerException: e);
             }
 
-            if (!(optionDefinition.Minimum is null) && optionDefinition.Maximum is null && argument < optionDefinition.Minimum)
+            if
+            (
+                (!(optionDefinition.Minimum is null) && argument < optionDefinition.Minimum) ||
+                (!(optionDefinition.Maximum is null) && argument > optionDefinition.Maximum)
+            )
             {
-                throw new ArgumentOutOfRangeException(null, $"{argumentErrorPrefix}{optionDefinition.Minimum} or greater");
-            }
-
-            if (optionDefinition.Minimum is null && !(optionDefinition.Maximum is null) && argument > optionDefinition.Maximum)
-            {
-                throw new ArgumentOutOfRangeException(null, $"{argumentErrorPrefix}{optionDefinition.Maximum} or less");
-            }
-
-            if (!(optionDefinition.Minimum is null) && !(optionDefinition.Maximum is null) && (argument > optionDefinition.Maximum || argument < optionDefinition.Minimum))
-            {
-                throw new ArgumentOutOfRangeException(null, $"{argumentErrorPrefix}between {optionDefinition.Minimum} and {optionDefinition.Maximum}");
+                throw new GetOptArgumentException(GetOptError.OutOfRange, parameters, optionDefinition, isLongOption, stringArgument, argument);
             }
 
             return argument;
         }
 
-        private bool ParseBool(string argument, string argumentErrorPrefix)
+        private bool ParseBool(string argument, OptionDefinition optionDefinition, bool isLongOption)
         {
             if (parameters.Options.CaseInsensitive())
             {
@@ -210,8 +203,7 @@ namespace De.Hochstaetter.CommandLine
             if (parameters.TrueArguments.Contains(argument)) { return true; }
             if (parameters.FalseArguments.Contains(argument)) { return false; }
 
-            var allowedArguments = string.Join(", ", parameters.TrueArguments.Concat(parameters.FalseArguments));
-            throw new ArgumentException($"{argumentErrorPrefix}one of the following: {allowedArguments}");
+            throw new GetOptArgumentException(GetOptError.TypeMismatch, parameters, optionDefinition, isLongOption, argument);
         }
     }
 }
