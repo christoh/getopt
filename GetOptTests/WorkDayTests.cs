@@ -83,7 +83,7 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForMissingArgument(IList<string> arguments)
             {
-                var exception = Assert.ThrowsException<ArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
+                Assert.ThrowsException<ArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
 
             CheckForMissingArgument(new[] { "-w" });
