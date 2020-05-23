@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using De.Hochstaetter.CommandLine;
+using De.Hochstaetter.CommandLine.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace De.Hochstaetter.GetOptTests
@@ -54,8 +55,7 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForOutOfRange(IList<string> arguments)
             {
-                var exception = Assert.ThrowsException<ArgumentOutOfRangeException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
-                Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--work-day" : "-w")} must be between Monday and Friday", exception.Message);
+                Assert.ThrowsException<GetOptArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
 
             CheckForOutOfRange(new[] { "-wSaturday" });
@@ -69,8 +69,7 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForInvalidEnum(IList<string> arguments)
             {
-                var exception = Assert.ThrowsException<ArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
-                Assert.AreEqual($"Argument for option {(arguments[0].StartsWith("--") ? "--work-day" : "-w")} must be WeekDay", exception.Message);
+                Assert.ThrowsException<GetOptArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
 
             CheckForInvalidEnum(new[] { "-wMOnday" });
@@ -83,7 +82,7 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForMissingArgument(IList<string> arguments)
             {
-                Assert.ThrowsException<ArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
+                Assert.ThrowsException<GetOptArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
 
             CheckForMissingArgument(new[] { "-w" });

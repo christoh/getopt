@@ -89,7 +89,7 @@ namespace De.Hochstaetter.CommandLine
 
                 if (optionDefinition.HasArgument && argument.Substring(j).Length == 1 && next == null)
                 {
-                    throw new ArgumentException($"Option -{argument[j]} requires an argument");
+                    throw new GetOptArgumentException(GetOptError.MustHaveArgument, parameters, optionDefinition, false);
                 }
 
                 var option = new Option { Definition = optionDefinition };
@@ -132,10 +132,10 @@ namespace De.Hochstaetter.CommandLine
             switch (split.Count)
             {
                 case 1 when optionDefinition.HasArgument && next == null:
-                    throw new ArgumentException($"Option --{split[0]} requires an argument");
+                    throw new GetOptArgumentException(GetOptError.MustHaveArgument, parameters, optionDefinition, true);
 
                 case 2 when !optionDefinition.HasArgument:
-                    throw new ArgumentException($"Option --{split[0]} must not have an argument");
+                    throw new GetOptArgumentException(GetOptError.MustNotHaveArgument, parameters,optionDefinition,false,split[1]);
 
                 default:
                     var option = new Option { Definition = optionDefinition };

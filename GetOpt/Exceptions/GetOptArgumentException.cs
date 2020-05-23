@@ -38,6 +38,11 @@ namespace De.Hochstaetter.CommandLine.Exceptions
 
         public static string CreateMessage(GetOptError getOptError, OptionDefinition optionDefinition, bool isLongOption, string stringAargument, dynamic argument, Parameters parameters, string unknownOption)
         {
+            string GetOptionName()
+            {
+                return isLongOption ? $"-{optionDefinition.LongName}" : $"{optionDefinition.ShortName}";
+            }
+
             string GetPrefix()
             {
                 if (optionDefinition is null)
@@ -45,8 +50,7 @@ namespace De.Hochstaetter.CommandLine.Exceptions
                     return null;
                 }
 
-                var optionName = isLongOption ? $"-{optionDefinition.LongName}" : $"{optionDefinition.ShortName}";
-                return $"Argument for option -{optionName} must be ";
+                return $"Argument for option -{GetOptionName()} must be ";
             }
 
             var message = string.Empty;
@@ -72,6 +76,14 @@ namespace De.Hochstaetter.CommandLine.Exceptions
                     message = $"{GetPrefix()}{optionDefinition.ArgumentType.Name}";
                     break;
 
+                case GetOptError.MustHaveArgument:
+                    message = $"Option -{GetOptionName()} requires an argument";
+                    break;
+
+                case GetOptError.MustNotHaveArgument:
+                    message=$"Option -{GetOptionName()} must not have an argument";
+                    break;
+
                 case GetOptError.OutOfRange:
                     if (optionDefinition.Maximum is null && !(optionDefinition.Minimum is null) && argument < optionDefinition.Minimum)
                     {
@@ -89,6 +101,9 @@ namespace De.Hochstaetter.CommandLine.Exceptions
                     }
 
                     break;
+
+                default:
+                    throw new ArgumentException($"Unknown {nameof(GetOpt)} error");
             }
             return message;
         }
