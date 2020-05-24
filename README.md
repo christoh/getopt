@@ -9,7 +9,7 @@ Each option can have a short form (single character) starting with "-" and/or a 
 Requirements
 ------------
 
-This library compiles to .NET Standard 2.0. The units tests require .NET Core 2.0.
+This library compiles to .NET Standard 2.0. The units tests require .NET Core 3.0.
 
 ### Minimum versions of target frameworks
 .NET Framework 4.6.1 (recommended 4.7.2)  
