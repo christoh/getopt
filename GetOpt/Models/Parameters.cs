@@ -36,6 +36,7 @@ namespace De.Hochstaetter.CommandLine.Models
 
         public static Parameters Default => new Parameters();
 
+#if DEBUG
         public override string ToString()
         {
             return
@@ -43,5 +44,6 @@ namespace De.Hochstaetter.CommandLine.Models
                 $"True={string.Join("/", TrueArguments)}, " +
                 $"False={string.Join("/", FalseArguments)}";
         }
+# endif
     }
 }

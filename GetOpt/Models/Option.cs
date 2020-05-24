@@ -5,6 +5,7 @@
         public OptionDefinition Definition { get; set; }
         public dynamic Argument { get; set; }
 
+#if DEBUG
         public override string ToString()
         {
             var result = string.Empty;
@@ -14,5 +15,6 @@
             result += Argument is null ? string.Empty : $": {Argument}";
             return result;
         }
+#endif
     }
 }

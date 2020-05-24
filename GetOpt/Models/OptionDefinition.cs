@@ -40,6 +40,7 @@ namespace De.Hochstaetter.CommandLine.Models
             Tag = tag;
         }
 
+#if DEBUG
         public override string ToString()
         {
             var result = string.Empty;
@@ -51,6 +52,7 @@ namespace De.Hochstaetter.CommandLine.Models
             result += Maximum != null ? $", Max: {Maximum}" : string.Empty;
             return result;
         }
+#endif
 
         private static char StringToChar(string shortName)
         {
