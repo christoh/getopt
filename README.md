@@ -11,7 +11,7 @@ Requirements
 
 This library compiles to .NET Standard 2.0. The units tests require .NET Core 2.0.
 
-### Minimum versions of tarhet frameworks
+### Minimum versions of target frameworks
 .NET Framework 4.6.1 (recommended 4.7.2)  
 .NET Core 2.0  
 Mono 5.4  
