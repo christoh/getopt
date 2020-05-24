@@ -8,5 +8,6 @@
         UnknownOption = 3,
         MustHaveArgument = 4,
         MustNotHaveArgument = 5,
+        RegexFail = 6,
     }
 }

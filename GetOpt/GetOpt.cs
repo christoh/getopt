@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using De.Hochstaetter.CommandLine.Exceptions;
 using De.Hochstaetter.CommandLine.Models;
 
@@ -22,25 +23,32 @@ namespace De.Hochstaetter.CommandLine
             this.parameters = parameters ?? new Parameters();
         }
 
-        public static ParsedArguments Parse(IList<string> arguments, IEnumerable<OptionDefinition> optionDefinitions, Parameters parameters = null)
+        public static ParsedArguments Parse(IEnumerable<string> arguments, IEnumerable<OptionDefinition> optionDefinitions, Parameters parameters = null)
         {
             return new GetOpt(optionDefinitions, parameters).Parse(arguments);
         }
 
-        public ParsedArguments Parse(IList<string> arguments)
+        public static ParsedArguments Parse(IEnumerable<OptionDefinition> optionDefinitions, Parameters parameters, params string[] arguments)
         {
-            if (arguments == null)
+            return new GetOpt(optionDefinitions, parameters).Parse(arguments);
+        }
+
+        public ParsedArguments Parse(IEnumerable<string> arguments)
+        {
+            if (arguments is null)
             {
                 throw new ArgumentNullException(nameof(arguments));
             }
 
+            var argumentList = arguments as IList<string> ?? arguments.ToArray();
+
             var result = new ParsedArguments();
             var noMoreOptions = false;
 
-            for (var i = 0; i < arguments.Count; i++)
+            for (var i = 0; i < argumentList.Count; i++)
             {
-                var argument = arguments[i];
-                var next = i < arguments.Count - 1 && !arguments[i + 1].StartsWith("-") ? arguments[i + 1] : null;
+                var argument = argumentList[i];
+                var next = i < argumentList.Count - 1 && !argumentList[i + 1].StartsWith("-") ? argumentList[i + 1] : null;
 
                 if (noMoreOptions)
                 {
@@ -159,13 +167,22 @@ namespace De.Hochstaetter.CommandLine
 
         private dynamic ConvertToTargetType(string stringArgument, OptionDefinition optionDefinition, bool isLongOption, IFormatProvider culture)
         {
+
             dynamic argument = null;
 
             try
             {
                 if (optionDefinition.ArgumentType.IsAssignableFrom(typeof(bool)))
                 {
-                    argument = ParseBool(stringArgument, optionDefinition, isLongOption);
+                    if (parameters.Options.CaseInsensitiveBoolAndEnums())
+                    {
+                        stringArgument = stringArgument.ToUpper(parameters.Culture);
+                    }
+
+                    if (parameters.TrueArguments.Contains(stringArgument)) { return true; }
+                    if (parameters.FalseArguments.Contains(stringArgument)) { return false; }
+
+                    Throw(GetOptError.TypeMismatch);
                 }
                 else if (typeof(Enum).IsAssignableFrom(optionDefinition.ArgumentType))
                 {
@@ -178,7 +195,7 @@ namespace De.Hochstaetter.CommandLine
             }
             catch (Exception e)
             {
-                throw new GetOptException(GetOptError.TypeMismatch, parameters, optionDefinition, isLongOption, stringArgument, argument, innerException: e);
+                Throw(GetOptError.TypeMismatch, e);
             }
 
             if
@@ -187,23 +204,24 @@ namespace De.Hochstaetter.CommandLine
                 (!(optionDefinition.Maximum is null) && argument > optionDefinition.Maximum)
             )
             {
-                throw new GetOptException(GetOptError.OutOfRange, parameters, optionDefinition, isLongOption, stringArgument, argument);
+                Throw(GetOptError.OutOfRange);
+            }
+
+            if
+            (
+                optionDefinition.RegexPattern != null &&
+                !Regex.IsMatch(stringArgument, optionDefinition.RegexPattern, parameters.RegexOptions)
+            )
+            {
+                Throw(GetOptError.RegexFail);
             }
 
             return argument;
-        }
 
-        private bool ParseBool(string argument, OptionDefinition optionDefinition, bool isLongOption)
-        {
-            if (parameters.Options.CaseInsensitiveBoolAndEnums())
+            void Throw(GetOptError error, Exception innerException = null)
             {
-                argument = argument.ToUpper(parameters.Culture);
+                throw new GetOptException(error, parameters, optionDefinition, isLongOption, stringArgument, argument, innerException: innerException);
             }
-
-            if (parameters.TrueArguments.Contains(argument)) { return true; }
-            if (parameters.FalseArguments.Contains(argument)) { return false; }
-
-            throw new GetOptException(GetOptError.TypeMismatch, parameters, optionDefinition, isLongOption, argument);
         }
     }
 }

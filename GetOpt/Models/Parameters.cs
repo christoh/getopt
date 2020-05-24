@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace De.Hochstaetter.CommandLine.Models
 {
@@ -11,13 +12,15 @@ namespace De.Hochstaetter.CommandLine.Models
             ParseFlags options = ParseFlags.Default,
             CultureInfo culture = null,
             IEnumerable<string> trueArguments = null,
-            IEnumerable<string> falseArguments = null
+            IEnumerable<string> falseArguments = null,
+            RegexOptions regexOptions = RegexOptions.None
         )
         {
             Culture = culture ?? CultureInfo.CurrentCulture;
             Options = options;
             TrueArguments = trueArguments ?? DefaultTrueArguments;
             FalseArguments = falseArguments ?? DefaultFalseArguments;
+            RegexOptions = regexOptions;
 
             if (options.CaseInsensitiveBoolAndEnums())
             {
@@ -33,6 +36,7 @@ namespace De.Hochstaetter.CommandLine.Models
         public IEnumerable<string> FalseArguments { get; }
         public ParseFlags Options { get; }
         public CultureInfo Culture { get; }
+        public RegexOptions RegexOptions { get; }
 
         public static Parameters Default => new Parameters();
 
