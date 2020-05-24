@@ -12,15 +12,13 @@ namespace De.Hochstaetter.CommandLine.Models
         public dynamic Maximum { get; }
         public object Tag { get; }
 
-        public OptionDefinition(string longName, char shortName = default, Type argumentType = null) : this(longName, shortName, argumentType, null, null, null) { }
-
-        public OptionDefinition(string longName, string shortName = default, Type argumentType = null) : this(longName, StringToChar(shortName), argumentType) { }
+        public OptionDefinition(string longName, string shortName = default, Type argumentType = null) :
+            this(longName, StringToChar(shortName), argumentType)
+        { }
 
         public OptionDefinition(string longName, string shortName, Type argumentType, object minimum = null, object maximum = null, object tag = null) :
             this(longName, StringToChar(shortName), argumentType, minimum, maximum, tag)
-        {
-
-        }
+        { }
 
         public OptionDefinition(string longName, char shortName, Type argumentType, dynamic minimum = null, dynamic maximum = null, object tag = null)
         {
@@ -40,6 +38,18 @@ namespace De.Hochstaetter.CommandLine.Models
             Maximum = maximum;
             Minimum = minimum;
             Tag = tag;
+        }
+
+        public override string ToString()
+        {
+            var result = string.Empty;
+            result += ShortName != default ? ShortName.ToString() : string.Empty;
+            result += result != string.Empty && LongName != default ? ", " : string.Empty;
+            result += LongName ?? string.Empty;
+            result += ArgumentType is null ? string.Empty : $": {ArgumentType.Name}";
+            result += Minimum != null ? $", Min: {Minimum}" : string.Empty;
+            result += Maximum != null ? $", Max: {Maximum}" : string.Empty;
+            return result;
         }
 
         private static char StringToChar(string shortName)

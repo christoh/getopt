@@ -46,7 +46,7 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckWrongBoolArguments(IList<string> arguments)
             {
-                Assert.ThrowsException<GetOptArgumentException>(() => GetOpt.Parse(arguments,TestOptions.Standard));
+                Assert.ThrowsException<GetOptException>(() => GetOpt.Parse(arguments,TestOptions.Standard));
             }
 
             CheckWrongBoolArguments(new[] { "-eTrue" });

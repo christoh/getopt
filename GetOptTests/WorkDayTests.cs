@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -55,7 +54,7 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForOutOfRange(IList<string> arguments)
             {
-                Assert.ThrowsException<GetOptArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
+                Assert.ThrowsException<GetOptException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
 
             CheckForOutOfRange(new[] { "-wSaturday" });
@@ -69,7 +68,7 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForInvalidEnum(IList<string> arguments)
             {
-                Assert.ThrowsException<GetOptArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
+                Assert.ThrowsException<GetOptException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
 
             CheckForInvalidEnum(new[] { "-wMOnday" });
@@ -82,7 +81,7 @@ namespace De.Hochstaetter.GetOptTests
         {
             static void CheckForMissingArgument(IList<string> arguments)
             {
-                Assert.ThrowsException<GetOptArgumentException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
+                Assert.ThrowsException<GetOptException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
 
             CheckForMissingArgument(new[] { "-w" });

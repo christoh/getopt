@@ -4,9 +4,9 @@ using De.Hochstaetter.CommandLine.Models;
 
 namespace De.Hochstaetter.CommandLine.Exceptions
 {
-    public class GetOptArgumentException : ArgumentException
+    public class GetOptException : ArgumentException
     {
-        public GetOptArgumentException
+        public GetOptException
         (
             GetOptError getOptError,
             Parameters parameters,
@@ -36,7 +36,16 @@ namespace De.Hochstaetter.CommandLine.Exceptions
         public dynamic Argument { get; }
         public Parameters Parameters { get; }
 
-        public static string CreateMessage(GetOptError getOptError, OptionDefinition optionDefinition, bool isLongOption, string stringAargument, dynamic argument, Parameters parameters, string unknownOption)
+        public static string CreateMessage
+        (
+            GetOptError getOptError,
+            OptionDefinition optionDefinition,
+            bool isLongOption,
+            string stringArgument,
+            dynamic argument,
+            Parameters parameters,
+            string unknownOption
+        )
         {
             string GetOptionName()
             {
@@ -45,11 +54,6 @@ namespace De.Hochstaetter.CommandLine.Exceptions
 
             string GetPrefix()
             {
-                if (optionDefinition is null)
-                {
-                    return null;
-                }
-
                 return $"Argument for option -{GetOptionName()} must be ";
             }
 
@@ -105,6 +109,7 @@ namespace De.Hochstaetter.CommandLine.Exceptions
                 default:
                     throw new ArgumentException($"Unknown {nameof(GetOpt)} error");
             }
+
             return message;
         }
     }

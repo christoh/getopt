@@ -84,12 +84,12 @@ namespace De.Hochstaetter.CommandLine
 
                 if (optionDefinition == null)
                 {
-                    throw new GetOptArgumentException(GetOptError.UnknownOption, parameters, null, false, unknownOption: $"-{argument[j]}");
+                    throw new GetOptException(GetOptError.UnknownOption, parameters, null, false, unknownOption: $"-{argument[j]}");
                 }
 
                 if (optionDefinition.HasArgument && argument.Substring(j).Length == 1 && next == null)
                 {
-                    throw new GetOptArgumentException(GetOptError.MustHaveArgument, parameters, optionDefinition, false);
+                    throw new GetOptException(GetOptError.MustHaveArgument, parameters, optionDefinition, false);
                 }
 
                 var option = new Option { Definition = optionDefinition };
@@ -126,16 +126,16 @@ namespace De.Hochstaetter.CommandLine
 
             if (optionDefinition == null)
             {
-                throw new ArgumentException($"Unknown option --{split[0]}");
+                throw new GetOptException(GetOptError.UnknownOption, parameters, null, true, split.Count == 2 ? split[1] : null, split[0]);
             }
 
             switch (split.Count)
             {
                 case 1 when optionDefinition.HasArgument && next == null:
-                    throw new GetOptArgumentException(GetOptError.MustHaveArgument, parameters, optionDefinition, true);
+                    throw new GetOptException(GetOptError.MustHaveArgument, parameters, optionDefinition, true);
 
                 case 2 when !optionDefinition.HasArgument:
-                    throw new GetOptArgumentException(GetOptError.MustNotHaveArgument, parameters,optionDefinition,false,split[1]);
+                    throw new GetOptException(GetOptError.MustNotHaveArgument, parameters, optionDefinition, true, split[1]);
 
                 default:
                     var option = new Option { Definition = optionDefinition };
@@ -169,7 +169,7 @@ namespace De.Hochstaetter.CommandLine
                 }
                 else if (typeof(Enum).IsAssignableFrom(optionDefinition.ArgumentType))
                 {
-                    argument = Enum.Parse(optionDefinition.ArgumentType, stringArgument, parameters.Options.CaseInsensitive());
+                    argument = Enum.Parse(optionDefinition.ArgumentType, stringArgument, parameters.Options.CaseInsensitiveBoolAndEnums());
                 }
                 else
                 {
@@ -178,7 +178,7 @@ namespace De.Hochstaetter.CommandLine
             }
             catch (Exception e)
             {
-                throw new GetOptArgumentException(GetOptError.TypeMismatch, parameters, optionDefinition, isLongOption, stringArgument, argument, innerException: e);
+                throw new GetOptException(GetOptError.TypeMismatch, parameters, optionDefinition, isLongOption, stringArgument, argument, innerException: e);
             }
 
             if
@@ -187,7 +187,7 @@ namespace De.Hochstaetter.CommandLine
                 (!(optionDefinition.Maximum is null) && argument > optionDefinition.Maximum)
             )
             {
-                throw new GetOptArgumentException(GetOptError.OutOfRange, parameters, optionDefinition, isLongOption, stringArgument, argument);
+                throw new GetOptException(GetOptError.OutOfRange, parameters, optionDefinition, isLongOption, stringArgument, argument);
             }
 
             return argument;
@@ -195,7 +195,7 @@ namespace De.Hochstaetter.CommandLine
 
         private bool ParseBool(string argument, OptionDefinition optionDefinition, bool isLongOption)
         {
-            if (parameters.Options.CaseInsensitive())
+            if (parameters.Options.CaseInsensitiveBoolAndEnums())
             {
                 argument = argument.ToUpper(parameters.Culture);
             }
@@ -203,7 +203,7 @@ namespace De.Hochstaetter.CommandLine
             if (parameters.TrueArguments.Contains(argument)) { return true; }
             if (parameters.FalseArguments.Contains(argument)) { return false; }
 
-            throw new GetOptArgumentException(GetOptError.TypeMismatch, parameters, optionDefinition, isLongOption, argument);
+            throw new GetOptException(GetOptError.TypeMismatch, parameters, optionDefinition, isLongOption, argument);
         }
     }
 }
