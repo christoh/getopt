@@ -16,7 +16,7 @@ namespace De.Hochstaetter.CommandLine.Models
             RegexOptions regexOptions = RegexOptions.None
         )
         {
-            Culture = culture ?? CultureInfo.CurrentCulture;
+            Culture = culture ?? CultureInfo.InvariantCulture;
             Options = options;
             TrueArguments = trueArguments ?? DefaultTrueArguments;
             FalseArguments = falseArguments ?? DefaultFalseArguments;

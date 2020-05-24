@@ -88,7 +88,8 @@ namespace De.Hochstaetter.CommandLine.Exceptions
                     message=$"Option -{GetOptionName()} must not have an argument";
                     break;
 
-                case GetOptError.RegexFail:
+                case GetOptError.CustomValidationFailed:
+                case GetOptError.RegexFailed:
                     message = $"{stringArgument} is not valid for option -{GetOptionName()}";
                     break;
 

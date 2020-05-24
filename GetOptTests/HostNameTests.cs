@@ -10,7 +10,7 @@ namespace De.Hochstaetter.GetOptTests
     public class HostNameTests
     {
         [TestMethod]
-        public void PassTests()
+        public void HostNameRegexPassTests()
         {
             var result = GetOpt.Parse
             (
@@ -36,7 +36,7 @@ namespace De.Hochstaetter.GetOptTests
         }
 
         [TestMethod]
-        public void FailTests()
+        public void HostNameRegexFailTests()
         {
             static void CheckHostName(params string[] arguments)
             {

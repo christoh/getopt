@@ -65,7 +65,7 @@ namespace De.Hochstaetter.CommandLine
                 if (argument.StartsWith("--"))
                 {
                     var option = ParseLongOption(argument, next, ref i);
-                    result.Options.Add(option);
+                    AddOption(result.Options, option);
                     continue;
                 }
 
@@ -114,13 +114,19 @@ namespace De.Hochstaetter.CommandLine
                         parameters.Culture
                     );
 
-                    result.Options.Add(option);
+                    AddOption(result.Options, option);
                     if (isArgumentOnNextString) { i++; }
                     break;
                 }
 
-                result.Options.Add(option);
+                AddOption(result.Options, option);
             }
+        }
+
+        private static void AddOption(ICollection<Option> options, Option option)
+        {
+            options.Add(option);
+            option.Definition.Setter?.Invoke(option.Argument);
         }
 
         private Option ParseLongOption(string argument, string next, ref int i)
@@ -167,7 +173,6 @@ namespace De.Hochstaetter.CommandLine
 
         private dynamic ConvertToTargetType(string stringArgument, OptionDefinition optionDefinition, bool isLongOption, IFormatProvider culture)
         {
-
             dynamic argument = null;
 
             try
@@ -213,7 +218,12 @@ namespace De.Hochstaetter.CommandLine
                 !Regex.IsMatch(stringArgument, optionDefinition.RegexPattern, parameters.RegexOptions)
             )
             {
-                Throw(GetOptError.RegexFail);
+                Throw(GetOptError.RegexFailed);
+            }
+
+            if (optionDefinition.Validator != null && !optionDefinition.Validator(stringArgument, argument))
+            {
+                Throw(GetOptError.CustomValidationFailed);
             }
 
             return argument;
