@@ -5,12 +5,14 @@
     <RootNamespace>De.Hochstaetter.CommandLine</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Christoph Hochstätter</Authors>
-    <Description>GetOpt is a command line parser that resembles the logic of POSIX getopt, getopt_long and getopt_long_only for .NET</Description>
+    <Description>GetOpt .NET is a command line parser that resembles the logic of POSIX getopt, getopt_long and getopt_long_only for .NET</Description>
     <Copyright>Copyright (c) 2020, Christoph Hochstätter</Copyright>
     <PackageProjectUrl>https://github.com/christoh/getopt/</PackageProjectUrl>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/christoh/getopt/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageId>GetOpt.NET</PackageId>
+    <Product>GetOpt .NET</Product>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
