@@ -23,3 +23,9 @@ jobs:
       run: dotnet build GetOptTests --configuration Release --no-restore
     - name: Test
       run: dotnet test GetOptTests --configuration Release --no-restore --no-build --verbosity normal
+    - name: Create artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: NuGet Package
+        path: GetOpt/bin/Release/GetOpt.1.0.0.nupkg
+
