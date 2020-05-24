@@ -38,7 +38,7 @@ namespace De.Hochstaetter.GetOptTests
         [TestMethod]
         public void HostNameRegexFailTests()
         {
-            static void CheckHostName(params string[] arguments)
+            void CheckHostName(params string[] arguments)
             {
                 Assert.ThrowsException<GetOptException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }

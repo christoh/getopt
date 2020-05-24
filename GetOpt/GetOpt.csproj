@@ -13,15 +13,18 @@
     <RepositoryType>git</RepositoryType>
     <PackageId>GetOpt.NET</PackageId>
     <Product>GetOpt .NET</Product>
+    <AssemblyName>GetOpt.NET</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <DocumentationFile>C:\Projects\getopt\GetOpt\GetOpt.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using De.Hochstaetter.CommandLine;
@@ -21,7 +20,7 @@ namespace De.Hochstaetter.GetOptTests
                 "--", "-etrue", "--show-minor-errors",
             };
 
-            var result = GetOpt.Parse(commandLine,TestOptions.Standard);
+            var result = GetOpt.Parse(commandLine, TestOptions.Standard);
             var (nonOptions, options) = (result.NonOptions, result.Options);
 
             Assert.AreEqual(3, nonOptions.Count);
@@ -44,13 +43,13 @@ namespace De.Hochstaetter.GetOptTests
         [TestMethod]
         public void BoolWrongArguments()
         {
-            static void CheckWrongBoolArguments(IList<string> arguments)
+            void CheckWrongBoolArguments(IList<string> arguments)
             {
-                Assert.ThrowsException<GetOptException>(() => GetOpt.Parse(arguments,TestOptions.Standard));
+                Assert.ThrowsException<GetOptException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
 
             CheckWrongBoolArguments(new[] { "-eTrue" });
-            CheckWrongBoolArguments(new[] { "-e","False" });
+            CheckWrongBoolArguments(new[] { "-e", "False" });
             CheckWrongBoolArguments(new[] { "--show-minor-errors=dummy" });
         }
     }

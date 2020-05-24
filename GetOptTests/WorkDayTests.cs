@@ -52,7 +52,7 @@ namespace De.Hochstaetter.GetOptTests
         [TestMethod]
         public void WorkingDayOutOfRange()
         {
-            static void CheckForOutOfRange(IList<string> arguments)
+            void CheckForOutOfRange(IEnumerable<string> arguments)
             {
                 Assert.ThrowsException<GetOptException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
@@ -66,7 +66,7 @@ namespace De.Hochstaetter.GetOptTests
         [SuppressMessage("ReSharper", "StringLiteralTypo")]
         public void WorkingDayInvalid()
         {
-            static void CheckForInvalidEnum(IList<string> arguments)
+            void CheckForInvalidEnum(IEnumerable<string> arguments)
             {
                 Assert.ThrowsException<GetOptException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
@@ -79,7 +79,7 @@ namespace De.Hochstaetter.GetOptTests
         [TestMethod]
         public void WorkDayArgumentMissing()
         {
-            static void CheckForMissingArgument(IList<string> arguments)
+            void CheckForMissingArgument(IEnumerable<string> arguments)
             {
                 Assert.ThrowsException<GetOptException>(() => GetOpt.Parse(arguments, TestOptions.Standard));
             }
