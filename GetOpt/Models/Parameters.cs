@@ -38,7 +38,7 @@ namespace De.Hochstaetter.CommandLine.Models
         public CultureInfo Culture { get; }
         public RegexOptions RegexOptions { get; }
 
-        public static Parameters Default => new Parameters();
+        public static Parameters Default = new Parameters();
 
 #if DEBUG
         public override string ToString()

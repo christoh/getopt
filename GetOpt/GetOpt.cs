@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using De.Hochstaetter.CommandLine.Attributes;
 using De.Hochstaetter.CommandLine.Exceptions;
 using De.Hochstaetter.CommandLine.Models;
 
@@ -9,8 +11,8 @@ namespace De.Hochstaetter.CommandLine
 {
     public class GetOpt
     {
-        private readonly Parameters parameters;
-        private readonly IList<OptionDefinition> optionDefinitions;
+        public Parameters Parameters { get; }
+        public ICollection<OptionDefinition> OptionDefinitions { get; }
 
         public GetOpt(IEnumerable<OptionDefinition> optionDefinitions, Parameters parameters = null)
         {
@@ -19,9 +21,13 @@ namespace De.Hochstaetter.CommandLine
                 throw new ArgumentNullException(nameof(optionDefinitions));
             }
 
-            this.optionDefinitions = optionDefinitions as IList<OptionDefinition> ?? this.optionDefinitions.ToArray();
-            this.parameters = parameters ?? new Parameters();
+            this.OptionDefinitions = optionDefinitions as ICollection<OptionDefinition> ?? this.OptionDefinitions.ToArray();
+            this.Parameters = parameters ?? Parameters.Default;
         }
+
+        public GetOpt(object instance, Parameters parameters = null, IEnumerable<OptionDefinition> optionDefinitions = null)
+            : this(GetDefinitionFromAttributes(instance, parameters, optionDefinitions), parameters)
+        { }
 
         public static ParsedArguments Parse(IEnumerable<string> arguments, IEnumerable<OptionDefinition> optionDefinitions, Parameters parameters = null)
         {
@@ -32,6 +38,18 @@ namespace De.Hochstaetter.CommandLine
         {
             return new GetOpt(optionDefinitions, parameters).Parse(arguments);
         }
+
+        public static ParsedArguments Parse(IEnumerable<string> arguments, object instance, Parameters parameters = null, IEnumerable<OptionDefinition> optionDefinitions = null)
+        {
+            return new GetOpt(instance, parameters, optionDefinitions).Parse(arguments);
+        }
+
+        public static ParsedArguments Parse(object instance, Parameters parameters = null, IEnumerable<OptionDefinition> optionDefinitions = null, params string[] arguments)
+        {
+            return new GetOpt(instance, parameters, optionDefinitions).Parse(arguments);
+        }
+
+        public ParsedArguments Parse(params string[] arguments) => Parse((IEnumerable<string>)arguments);
 
         public ParsedArguments Parse(IEnumerable<string> arguments)
         {
@@ -81,23 +99,118 @@ namespace De.Hochstaetter.CommandLine
             return result;
         }
 
+        private static IEnumerable<OptionDefinition> GetDefinitionFromAttributes(object instance, Parameters parameters, IEnumerable<OptionDefinition> optionDefinitions)
+        {
+            IReadOnlyList<MemberInfo> members = instance.GetType()
+                .GetMembers(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
+                .Where(m => m.GetCustomAttribute<GetOptAttribute>() != null)
+                .ToArray();
+
+            var optionDefinitionCollection = optionDefinitions as ICollection<OptionDefinition> ?? new List<OptionDefinition>(members.Count);
+            parameters = parameters ?? Parameters.Default;
+
+            foreach (var member in members)
+            {
+                var dynamicMember = (dynamic)member;
+                var attribute = member.GetCustomAttribute<GetOptAttribute>();
+                Type memberType;
+                Type genericTypeArgument = null;
+
+                switch (member)
+                {
+                    case FieldInfo fieldInfo:
+                        memberType = fieldInfo.FieldType;
+                        break;
+                    case PropertyInfo propertyInfo:
+                        memberType = propertyInfo.PropertyType;
+                        break;
+                    default:
+                        throw new InvalidOperationException($"{nameof(GetOptAttribute)} must be used on field or property");
+                }
+
+                var collectionType = IsICollection(memberType) ? memberType : memberType.GetInterfaces().SingleOrDefault(IsICollection);
+
+                if (collectionType != null)
+                {
+                    genericTypeArgument = memberType.GetTypeInfo().GenericTypeArguments[0];
+                }
+
+                var optionDefinition = new OptionDefinition
+                (
+                    attribute.LongName, attribute.ShortName,
+                    attribute.HasArgument ? (genericTypeArgument ?? memberType) : null, SetValue,
+                    attribute.Minimum, attribute.Maximum,
+                    attribute.RegexPattern, null, attribute.Tag
+                );
+
+                optionDefinitionCollection.Add(optionDefinition);
+
+                if (genericTypeArgument != null)
+                {
+                    var collection = dynamicMember.GetValue(instance);
+
+                    if (collection == null)
+                    {
+                        try
+                        {
+                            collection = Activator.CreateInstance(memberType);
+                            dynamicMember.SetValue(instance, collection);
+                        }
+                        catch (Exception e)
+                        {
+                            throw new NullReferenceException($"{member.Name} must be initialized before being used with {nameof(GetOpt)}",e);
+                        }
+                    }
+                    else
+                    {
+                        collection.Clear();
+                    }
+                }
+
+                void SetValue(dynamic value)
+                {
+                    if (!attribute.HasArgument)
+                    {
+                        value = Convert.ChangeType(true, memberType, parameters.Culture);
+                    }
+
+                    if (genericTypeArgument != null)
+                    {
+                        dynamicMember.GetValue(instance).Add(value);
+                    }
+                    else
+                    {
+                        dynamicMember.SetValue(instance, value);
+                    }
+                }
+            }
+
+            return optionDefinitionCollection;
+        }
+
+
+        private static bool IsICollection(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ICollection<>);
+        }
+
         private void ParseShortOption(string argument, string next, ParsedArguments result, ref int i)
         {
             for (var j = 1; j < argument.Length; j++)
             {
-                var optionDefinition = optionDefinitions.SingleOrDefault
+                var optionDefinition = OptionDefinitions.SingleOrDefault
                 (
                     o => o.ShortName != default && o.ShortName == argument[j]
                 );
 
                 if (optionDefinition == null)
                 {
-                    throw new GetOptException(GetOptError.UnknownOption, parameters, null, false, unknownOption: $"-{argument[j]}");
+                    throw new GetOptException(GetOptError.UnknownOption, Parameters, null, false, unknownOption: $"-{argument[j]}");
                 }
 
                 if (optionDefinition.HasArgument && argument.Substring(j).Length == 1 && next == null)
                 {
-                    throw new GetOptException(GetOptError.MustHaveArgument, parameters, optionDefinition, false);
+                    throw new GetOptException(GetOptError.MustHaveArgument, Parameters, optionDefinition, false);
                 }
 
                 var option = new Option { Definition = optionDefinition };
@@ -106,12 +219,12 @@ namespace De.Hochstaetter.CommandLine
                 {
                     var isArgumentOnNextString = argument.Substring(j).Length == 1;
 
-                    option.Argument = ConvertToTargetType
+                    option.Argument = GetTypedArgument
                     (
                         (isArgumentOnNextString ? next : argument.Substring(j + 1)),
                         optionDefinition,
                         false,
-                        parameters.Culture
+                        Parameters.Culture
                     );
 
                     AddOption(result.Options, option);
@@ -133,35 +246,35 @@ namespace De.Hochstaetter.CommandLine
         {
             IReadOnlyList<string> split = argument.Substring(2).Split(new[] { '=' }, 2);
 
-            var optionDefinition = optionDefinitions.SingleOrDefault
+            var optionDefinition = OptionDefinitions.SingleOrDefault
             (
                 o => o.LongName != default && o.LongName == split[0]
             );
 
             if (optionDefinition == null)
             {
-                throw new GetOptException(GetOptError.UnknownOption, parameters, null, true, split.Count == 2 ? split[1] : null, split[0]);
+                throw new GetOptException(GetOptError.UnknownOption, Parameters, null, true, split.Count == 2 ? split[1] : null, split[0]);
             }
 
             switch (split.Count)
             {
                 case 1 when optionDefinition.HasArgument && next == null:
-                    throw new GetOptException(GetOptError.MustHaveArgument, parameters, optionDefinition, true);
+                    throw new GetOptException(GetOptError.MustHaveArgument, Parameters, optionDefinition, true);
 
                 case 2 when !optionDefinition.HasArgument:
-                    throw new GetOptException(GetOptError.MustNotHaveArgument, parameters, optionDefinition, true, split[1]);
+                    throw new GetOptException(GetOptError.MustNotHaveArgument, Parameters, optionDefinition, true, split[1]);
 
                 default:
                     var option = new Option { Definition = optionDefinition };
 
                     if (optionDefinition.HasArgument)
                     {
-                        option.Argument = ConvertToTargetType
+                        option.Argument = GetTypedArgument
                         (
                             split.Count == 2 ? split[1] : next,
                             optionDefinition,
                             true,
-                            parameters.Culture
+                            Parameters.Culture
                         );
 
                         i += 2 - split.Count;
@@ -171,7 +284,7 @@ namespace De.Hochstaetter.CommandLine
             }
         }
 
-        private dynamic ConvertToTargetType(string stringArgument, OptionDefinition optionDefinition, bool isLongOption, IFormatProvider culture)
+        private dynamic GetTypedArgument(string stringArgument, OptionDefinition optionDefinition, bool isLongOption, IFormatProvider culture)
         {
             dynamic argument = null;
 
@@ -179,19 +292,19 @@ namespace De.Hochstaetter.CommandLine
             {
                 if (optionDefinition.ArgumentType.IsAssignableFrom(typeof(bool)))
                 {
-                    if (parameters.Options.CaseInsensitiveBoolAndEnums())
+                    if (Parameters.Options.CaseInsensitiveBoolAndEnums())
                     {
-                        stringArgument = stringArgument.ToUpper(parameters.Culture);
+                        stringArgument = stringArgument.ToUpper(Parameters.Culture);
                     }
 
-                    if (parameters.TrueArguments.Contains(stringArgument)) { return true; }
-                    if (parameters.FalseArguments.Contains(stringArgument)) { return false; }
+                    if (Parameters.TrueArguments.Contains(stringArgument)) { return true; }
+                    if (Parameters.FalseArguments.Contains(stringArgument)) { return false; }
 
                     Throw(GetOptError.TypeMismatch);
                 }
                 else if (typeof(Enum).IsAssignableFrom(optionDefinition.ArgumentType))
                 {
-                    argument = Enum.Parse(optionDefinition.ArgumentType, stringArgument, parameters.Options.CaseInsensitiveBoolAndEnums());
+                    argument = Enum.Parse(optionDefinition.ArgumentType, stringArgument, Parameters.Options.CaseInsensitiveBoolAndEnums());
                 }
                 else
                 {
@@ -215,7 +328,7 @@ namespace De.Hochstaetter.CommandLine
             if
             (
                 optionDefinition.RegexPattern != null &&
-                !Regex.IsMatch(stringArgument, optionDefinition.RegexPattern, parameters.RegexOptions)
+                !Regex.IsMatch(stringArgument, optionDefinition.RegexPattern, Parameters.RegexOptions)
             )
             {
                 Throw(GetOptError.RegexFailed);
@@ -230,7 +343,7 @@ namespace De.Hochstaetter.CommandLine
 
             void Throw(GetOptError error, Exception innerException = null)
             {
-                throw new GetOptException(error, parameters, optionDefinition, isLongOption, stringArgument, argument, innerException: innerException);
+                throw new GetOptException(error, Parameters, optionDefinition, isLongOption, stringArgument, argument, innerException: innerException);
             }
         }
     }

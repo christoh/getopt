@@ -3,21 +3,10 @@ using System.Text.RegularExpressions;
 
 namespace De.Hochstaetter.CommandLine.Models
 {
-    public delegate bool Validator(string stringArgument, dynamic argument);
+    public delegate bool Validator(string stringArgument, object argument);
 
     public class OptionDefinition
     {
-        public string LongName { get; }
-        public char ShortName { get; }
-        public bool HasArgument => !(ArgumentType is null);
-        public Type ArgumentType { get; }
-        public dynamic Minimum { get; }
-        public dynamic Maximum { get; }
-        public string RegexPattern { get; }
-        public Action<dynamic> Setter { get; }
-        public Validator Validator { get; }
-        public object Tag { get; }
-
         /// <summary>
         /// Creates an option that requires an argument
         /// </summary>
@@ -77,6 +66,17 @@ namespace De.Hochstaetter.CommandLine.Models
             Validator = validator;
             Tag = tag;
         }
+
+        public string LongName { get; }
+        public char ShortName { get; }
+        public bool HasArgument => !(ArgumentType is null);
+        public Type ArgumentType { get; }
+        public dynamic Minimum { get; }
+        public dynamic Maximum { get; }
+        public string RegexPattern { get; }
+        public Action<dynamic> Setter { get; }
+        public Validator Validator { get; }
+        public object Tag { get; }
 
 #if DEBUG
         public override string ToString()

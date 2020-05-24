@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GetOpt.NET</name>
+    </assembly>
+    <members>
+        <member name="M:De.Hochstaetter.CommandLine.Models.OptionDefinition.#ctor(System.String,System.Char,System.Type,System.Action{System.Object},System.Object,System.Object,System.String,De.Hochstaetter.CommandLine.Models.Validator,System.Object)">
+            <summary>
+            Creates an option that requires an argument
+            </summary>
+            <param name="longName">The long name for the option for instance --use-ssl</param>
+            <param name="shortName">The short name for the option for instance -s</param>
+            <param name="argumentType">The type (e.g. <see cref="T:System.Int32"/>) that the option argument should be
+            converted to. If you don't want any conversion use <see cref="T:System.String"/></param>
+            <param name="minimum">The minimum value allowed for this option. Should have the same type as <paramref name="argumentType"/></param>
+            <param name="maximum">The maximum value allowed for this option. Should have the same type as <paramref name="argumentType"/></param>
+            <param name="regexPattern">An optional <see cref="T:System.Text.RegularExpressions.Regex"/> pattern</param>
+            <param name="setter">An optional <see cref="T:System.Action`1"/> which is invoked when the option is matched on the command line</param>
+            <param name="tag">An optional tag that can be attached to the <see cref="T:De.Hochstaetter.CommandLine.Models.OptionDefinition"/>.</param>
+            <param name="validator">An optional custom validation <see cref="T:De.Hochstaetter.CommandLine.Models.Validator"/></param>
+        </member>
+    </members>
+</doc>
