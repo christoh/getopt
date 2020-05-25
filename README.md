@@ -30,4 +30,7 @@ Please use Github. E-Mails will not be answered.
 Initial Development
 -------------------
 
-GetOpt .NET is currently in initial development (version < 1.0.0) and the API may change
+GetOpt .NET is currently in initial development (version < 1.0.0)
+* The API may change
+* It does not have yet production quality
+
