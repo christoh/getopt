@@ -126,7 +126,7 @@ namespace De.Hochstaetter.CommandLine
                         {
                             if (optionDefinition.ArgumentType != null && optionDefinition.ArgumentName != null)
                             {
-                                return $"{s} {optionDefinition.ArgumentName}";
+                                return $"{s}{(s.StartsWith("--") ? '=' : ' ')}{optionDefinition.ArgumentName}";
                             }
 
                             return s;
@@ -143,7 +143,7 @@ namespace De.Hochstaetter.CommandLine
 
         private static OptionDefinitionList GetDefinitionFromAttributes(object instance, Parameters parameters, IEnumerable<OptionDefinition> optionDefinitions)
         {
-            IReadOnlyList<MemberInfo> members = instance.GetType()
+            IReadOnlyList<MemberInfo> members = (instance is Type type ? type : instance.GetType())
                 .GetMembers(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
                 .Where(m => m.GetCustomAttribute<GetOptAttribute>() != null)
                 .ToArray();
@@ -170,11 +170,13 @@ namespace De.Hochstaetter.CommandLine
                         throw new InvalidOperationException($"{nameof(GetOptAttribute)} must be used on field or property");
                 }
 
+                memberType = Nullable.GetUnderlyingType(memberType) ?? memberType;
                 var collectionType = IsICollection(memberType) ? memberType : memberType.GetInterfaces().SingleOrDefault(IsICollection);
 
                 if (collectionType != null)
                 {
                     genericArgumentType = memberType.GetTypeInfo().GenericTypeArguments[0];
+                    genericArgumentType = Nullable.GetUnderlyingType(genericArgumentType) ?? genericArgumentType;
                 }
 
                 var optionDefinition = new OptionDefinition
@@ -245,7 +247,7 @@ namespace De.Hochstaetter.CommandLine
 
                 if (optionDefinition == null)
                 {
-                    throw new GetOptException(GetOptError.UnknownOption, Parameters, null, false, unknownOption: $"-{argument[j]}");
+                    throw new GetOptException(GetOptError.UnknownOption, Parameters, null, false, unknownOption: argument[j].ToString());
                 }
 
                 if (optionDefinition.HasArgument && argument.Substring(j).Length == 1 && next == null)
@@ -289,7 +291,7 @@ namespace De.Hochstaetter.CommandLine
 
             if (optionDefinition == null)
             {
-                throw new GetOptException(GetOptError.UnknownOption, Parameters, null, true, split.Count == 2 ? split[1] : null, split[0]);
+                throw new GetOptException(GetOptError.UnknownOption, Parameters, null, true, split.Count == 2 ? split[1] : null, null, split[0]);
             }
 
             switch (split.Count)

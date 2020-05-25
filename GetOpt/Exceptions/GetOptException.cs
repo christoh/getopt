@@ -66,7 +66,7 @@ namespace De.Hochstaetter.CommandLine.Exceptions
                     break;
 
                 case GetOptError.UnknownOption:
-                    message = $"Unknown option {unknownOption}";
+                    message = $"Unknown option -{(isLongOption ? "-" : string.Empty)}{unknownOption}";
                     break;
 
                 case GetOptError.TypeMismatch:
@@ -85,7 +85,7 @@ namespace De.Hochstaetter.CommandLine.Exceptions
                     break;
 
                 case GetOptError.MustNotHaveArgument:
-                    message=$"Option -{GetOptionName()} must not have an argument";
+                    message = $"Option -{GetOptionName()} must not have an argument";
                     break;
 
                 case GetOptError.CustomValidationFailed:
