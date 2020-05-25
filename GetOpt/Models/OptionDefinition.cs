@@ -1,25 +1,31 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using De.Hochstaetter.CommandLine.Exceptions;
 
 namespace De.Hochstaetter.CommandLine.Models
 {
     public delegate bool Validator(string stringArgument, object argument);
 
+    /// <summary>
+    /// Definition for a command line option
+    /// </summary>
     public class OptionDefinition
     {
         /// <summary>
-        /// Creates an option that requires an argument
+        /// Creates an <see cref="OptionDefinition"/>
         /// </summary>
         /// <param name="longName">The long name for the option for instance --use-ssl</param>
         /// <param name="shortName">The short name for the option for instance -s</param>
-        /// <param name="argumentType">The type (e.g. <see cref="int"/>) that the option argument should be
+        /// <param name="argumentType">The type that the option argument should be converted to. Set to null if the option does not have an argument.
         /// converted to. If you don't want any conversion use <see cref="string"/></param>
-        /// <param name="minimum">The minimum value allowed for this option. Should have the same type as <paramref name="argumentType"/></param>
-        /// <param name="maximum">The maximum value allowed for this option. Should have the same type as <paramref name="argumentType"/></param>
-        /// <param name="regexPattern">An optional <see cref="Regex"/> pattern</param>
+        /// <param name="minimum">The minimum value allowed for the option argument. Ignored if <paramref name="argumentType"/> is null.</param>
+        /// <param name="maximum">The maximum value allowed for this option argument. Ignored if <paramref name="argumentType"/> is null.</param>
+        /// <param name="regexPattern">An optional <see cref="Regex"/> pattern that the argument must match. Ignored if <paramref name="argumentType"/> is null.</param>
         /// <param name="setter">An optional <see cref="System.Action{dynamic}"/> which is invoked when the option is matched on the command line</param>
         /// <param name="tag">An optional tag that can be attached to the <see cref="OptionDefinition"/>.</param>
-        /// <param name="validator">An optional custom validation <see cref="Models.Validator"/></param>
+        /// <param name="help">A line of help text what this option is good for.</param>
+        /// <param name="argumentName">A name for the option argument used in help. Only used if <paramref name="argumentType"/> and <param name="help"/> are not null</param>
+        /// <param name="validator">An optional custom <see cref="Models.Validator"/>. A <see cref="GetOptException"/> is thrown if the <see cref="Validator"/> returns false.</param>
         public OptionDefinition
         (
             string longName = null,
@@ -30,6 +36,8 @@ namespace De.Hochstaetter.CommandLine.Models
             dynamic maximum = null,
             string regexPattern = null,
             Validator validator = null,
+            string help = null,
+            string argumentName = null,
             object tag = null
         )
         {
@@ -65,6 +73,8 @@ namespace De.Hochstaetter.CommandLine.Models
             Setter = setter;
             Validator = validator;
             Tag = tag;
+            Help = help;
+            ArgumentName = argumentName;
         }
 
         public string LongName { get; }
@@ -76,6 +86,8 @@ namespace De.Hochstaetter.CommandLine.Models
         public string RegexPattern { get; }
         public Action<object> Setter { get; }
         public Validator Validator { get; }
+        public string Help { get; }
+        public string ArgumentName { get; }
         public object Tag { get; }
 
 #if DEBUG

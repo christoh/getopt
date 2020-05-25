@@ -13,7 +13,8 @@ namespace De.Hochstaetter.CommandLine.Models
             CultureInfo culture = null,
             IEnumerable<string> trueArguments = null,
             IEnumerable<string> falseArguments = null,
-            RegexOptions regexOptions = RegexOptions.None
+            RegexOptions regexOptions = RegexOptions.None,
+            string helpIndent = "\t"
         )
         {
             Culture = culture ?? CultureInfo.InvariantCulture;
@@ -21,6 +22,7 @@ namespace De.Hochstaetter.CommandLine.Models
             TrueArguments = trueArguments ?? DefaultTrueArguments;
             FalseArguments = falseArguments ?? DefaultFalseArguments;
             RegexOptions = regexOptions;
+            HelpIndent = helpIndent;
 
             if (options.CaseInsensitiveBoolAndEnums())
             {
@@ -37,6 +39,7 @@ namespace De.Hochstaetter.CommandLine.Models
         public ParseFlags Options { get; }
         public CultureInfo Culture { get; }
         public RegexOptions RegexOptions { get; }
+        public string HelpIndent { get; }
 
         public static Parameters Default = new Parameters();
 

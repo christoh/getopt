@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using De.Hochstaetter.CommandLine.Attributes;
 using De.Hochstaetter.CommandLine.Exceptions;
@@ -12,7 +13,7 @@ namespace De.Hochstaetter.CommandLine
     public class GetOpt
     {
         public Parameters Parameters { get; }
-        public ICollection<OptionDefinition> OptionDefinitions { get; }
+        public OptionDefinitionList OptionDefinitions { get; }
 
         public GetOpt(IEnumerable<OptionDefinition> optionDefinitions, Parameters parameters = null)
         {
@@ -21,7 +22,7 @@ namespace De.Hochstaetter.CommandLine
                 throw new ArgumentNullException(nameof(optionDefinitions));
             }
 
-            OptionDefinitions = optionDefinitions as ICollection<OptionDefinition> ?? OptionDefinitions.ToArray();
+            OptionDefinitions = optionDefinitions as OptionDefinitionList ?? optionDefinitions.ToOptionList();
             Parameters = parameters ?? Parameters.Default;
         }
 
@@ -99,14 +100,55 @@ namespace De.Hochstaetter.CommandLine
             return result;
         }
 
-        private static IEnumerable<OptionDefinition> GetDefinitionFromAttributes(object instance, Parameters parameters, IEnumerable<OptionDefinition> optionDefinitions)
+        public string GetHelp() => GetHelp(OptionDefinitions, Parameters);
+
+        public static string GetHelp(IEnumerable<OptionDefinition> optionDefinitions, Parameters parameters = null)
+        {
+            parameters = parameters ?? Parameters.Default;
+            var optionDefinitionList = optionDefinitions as OptionDefinitionList ?? optionDefinitions.ToOptionList();
+            var result = new StringBuilder();
+
+            foreach (var optionDefinition in optionDefinitionList.Where(d => d.Help != null))
+            {
+                result.AppendLine(string.Join
+                (
+                    ", ",
+
+                    new[]
+                        {
+                            optionDefinition.ShortName != default ? $"-{optionDefinition.ShortName}" : null,
+                            optionDefinition.LongName != null ? $"--{optionDefinition.LongName}" : null
+                        }
+
+                        .Where(o => o != null)
+
+                        .Select(s =>
+                        {
+                            if (optionDefinition.ArgumentType != null && optionDefinition.ArgumentName != null)
+                            {
+                                return $"{s} {optionDefinition.ArgumentName}";
+                            }
+
+                            return s;
+                        })
+                ));
+
+                result.Append(parameters.HelpIndent);
+                result.AppendLine(optionDefinition.Help);
+                result.AppendLine();
+            }
+
+            return result.ToString();
+        }
+
+        private static OptionDefinitionList GetDefinitionFromAttributes(object instance, Parameters parameters, IEnumerable<OptionDefinition> optionDefinitions)
         {
             IReadOnlyList<MemberInfo> members = instance.GetType()
                 .GetMembers(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
                 .Where(m => m.GetCustomAttribute<GetOptAttribute>() != null)
                 .ToArray();
 
-            var optionDefinitionCollection = optionDefinitions as ICollection<OptionDefinition> ?? new List<OptionDefinition>(members.Count);
+            var optionDefinitionList = optionDefinitions as OptionDefinitionList ?? optionDefinitions.ToOptionList();
             parameters = parameters ?? Parameters.Default;
 
             foreach (var member in members)
@@ -140,10 +182,11 @@ namespace De.Hochstaetter.CommandLine
                     attribute.LongName, attribute.ShortName,
                     attribute.HasArgument ? (genericArgumentType ?? memberType) : null, SetValue,
                     attribute.Minimum, attribute.Maximum,
-                    attribute.RegexPattern, null, attribute.Tag
+                    attribute.RegexPattern, null,
+                    attribute.Help, attribute.ArgumentName, attribute.Tag
                 );
 
-                optionDefinitionCollection.Add(optionDefinition);
+                optionDefinitionList.Add(optionDefinition);
 
                 if (genericArgumentType != null)
                 {
@@ -158,7 +201,7 @@ namespace De.Hochstaetter.CommandLine
                         }
                         catch (Exception e)
                         {
-                            throw new NullReferenceException($"{member.Name} must be initialized before being used with {nameof(GetOpt)}",e);
+                            throw new NullReferenceException($"{member.Name} must be initialized before being used with {nameof(GetOpt)}", e);
                         }
                     }
                     else
@@ -185,7 +228,7 @@ namespace De.Hochstaetter.CommandLine
                 }
             }
 
-            return optionDefinitionCollection;
+            return optionDefinitionList;
         }
 
 
@@ -198,10 +241,7 @@ namespace De.Hochstaetter.CommandLine
         {
             for (var j = 1; j < argument.Length; j++)
             {
-                var optionDefinition = OptionDefinitions.SingleOrDefault
-                (
-                    o => o.ShortName != default && o.ShortName == argument[j]
-                );
+                var optionDefinition = OptionDefinitions[argument[j]];
 
                 if (optionDefinition == null)
                 {
@@ -245,11 +285,7 @@ namespace De.Hochstaetter.CommandLine
         private Option ParseLongOption(string argument, string next, ref int i)
         {
             IReadOnlyList<string> split = argument.Substring(2).Split(new[] { '=' }, 2);
-
-            var optionDefinition = OptionDefinitions.SingleOrDefault
-            (
-                o => o.LongName != default && o.LongName == split[0]
-            );
+            var optionDefinition = OptionDefinitions[split[0]];
 
             if (optionDefinition == null)
             {

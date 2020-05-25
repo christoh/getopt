@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection.Metadata;
 using De.Hochstaetter.CommandLine;
 using De.Hochstaetter.CommandLine.Attributes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -8,13 +9,17 @@ namespace De.Hochstaetter.GetOptTests
     [TestClass]
     public class AttributeTests
     {
-        [GetOpt(LongName = "verbose", ShortName = 'v', HasArgument = false)]
+        private const string VerboseHelp = "Show verbose output";
+        private const string LogFileHelp = "Write log to <file>";
+        private const string NotifyHelp = "Send notification to <email-address>. Can be used multiple times.";
+
+        [GetOpt(LongName = "verbose", ShortName = 'v', HasArgument = false, Help = VerboseHelp)]
         private readonly bool verbose = false;
 
-        [GetOpt(LongName = "log-file", ShortName = 'l')]
+        [GetOpt(LongName = "log-file", ShortName = 'l', ArgumentName = "<file>", Help = LogFileHelp)]
         private static string LogFile { get; set; }
 
-        [GetOpt(LongName = "notify-email", ShortName = 'n')]
+        [GetOpt(LongName = "notify-email", ShortName = 'n', ArgumentName = "<email-address>", Help = NotifyHelp)]
         public ISet<string> EmailNotifications { get; } = new HashSet<string>(new[] { "old", "stuff", "will", "be", "deleted" });
 
         [TestMethod]
@@ -31,6 +36,8 @@ namespace De.Hochstaetter.GetOptTests
                 "--notify-email=admin@example.net",
                 "-n", "donald@duck.com"
             );
+
+            var help = getOpt.GetHelp();
 
             Assert.IsTrue(verbose);
             Assert.AreEqual("C:\\Temp\\Logfile.txt", LogFile);

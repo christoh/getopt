@@ -10,6 +10,8 @@ namespace De.Hochstaetter.CommandLine.Attributes
         public object Minimum { get; set; }
         public object Maximum { get; set; }
         public string RegexPattern { get; set; }
+        public string Help { get; set; }
+        public string ArgumentName { get; set; }
         public object Tag { get; set; }
         public bool HasArgument { get; set; } = true;
     }
