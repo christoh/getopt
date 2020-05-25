@@ -27,5 +27,5 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: NuGet Package
-        path: GetOpt/bin/Release/GetOpt.NET.1.0.0.nupkg
+        path: GetOpt/bin/Release/GetOpt.NET.0.9.1.nupkg
 
