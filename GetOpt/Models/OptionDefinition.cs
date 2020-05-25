@@ -22,7 +22,7 @@ namespace De.Hochstaetter.CommandLine.Models
         /// <param name="validator">An optional custom validation <see cref="Models.Validator"/></param>
         public OptionDefinition
         (
-            string longName=null,
+            string longName = null,
             char shortName = default,
             Type argumentType = null,
             Action<dynamic> setter = null,
@@ -43,7 +43,7 @@ namespace De.Hochstaetter.CommandLine.Models
                 throw new ArgumentException($"{nameof(LongName)} cannot start with '-' in {nameof(OptionDefinition)}", nameof(LongName));
             }
 
-            if (minimum != null && maximum != null)
+            if (!(minimum is null) && !(maximum is null))
             {
                 if (minimum > maximum)
                 {
@@ -74,7 +74,7 @@ namespace De.Hochstaetter.CommandLine.Models
         public dynamic Minimum { get; }
         public dynamic Maximum { get; }
         public string RegexPattern { get; }
-        public Action<dynamic> Setter { get; }
+        public Action<object> Setter { get; }
         public Validator Validator { get; }
         public object Tag { get; }
 
@@ -86,8 +86,8 @@ namespace De.Hochstaetter.CommandLine.Models
             result += result != string.Empty && LongName != default ? ", " : string.Empty;
             result += LongName ?? string.Empty;
             result += ArgumentType is null ? string.Empty : $": {ArgumentType.Name}";
-            result += Minimum != null ? $", Min: {Minimum}" : string.Empty;
-            result += Maximum != null ? $", Max: {Maximum}" : string.Empty;
+            result += Minimum is null ? string.Empty : $", Min: {Minimum}";
+            result += Maximum is null ? string.Empty : $", Max: {Maximum}";
             return result;
         }
 #endif

@@ -21,8 +21,8 @@ namespace De.Hochstaetter.CommandLine
                 throw new ArgumentNullException(nameof(optionDefinitions));
             }
 
-            this.OptionDefinitions = optionDefinitions as ICollection<OptionDefinition> ?? this.OptionDefinitions.ToArray();
-            this.Parameters = parameters ?? Parameters.Default;
+            OptionDefinitions = optionDefinitions as ICollection<OptionDefinition> ?? OptionDefinitions.ToArray();
+            Parameters = parameters ?? Parameters.Default;
         }
 
         public GetOpt(object instance, Parameters parameters = null, IEnumerable<OptionDefinition> optionDefinitions = null)
@@ -114,7 +114,7 @@ namespace De.Hochstaetter.CommandLine
                 var dynamicMember = (dynamic)member;
                 var attribute = member.GetCustomAttribute<GetOptAttribute>();
                 Type memberType;
-                Type genericTypeArgument = null;
+                Type genericArgumentType = null;
 
                 switch (member)
                 {
@@ -132,24 +132,24 @@ namespace De.Hochstaetter.CommandLine
 
                 if (collectionType != null)
                 {
-                    genericTypeArgument = memberType.GetTypeInfo().GenericTypeArguments[0];
+                    genericArgumentType = memberType.GetTypeInfo().GenericTypeArguments[0];
                 }
 
                 var optionDefinition = new OptionDefinition
                 (
                     attribute.LongName, attribute.ShortName,
-                    attribute.HasArgument ? (genericTypeArgument ?? memberType) : null, SetValue,
+                    attribute.HasArgument ? (genericArgumentType ?? memberType) : null, SetValue,
                     attribute.Minimum, attribute.Maximum,
                     attribute.RegexPattern, null, attribute.Tag
                 );
 
                 optionDefinitionCollection.Add(optionDefinition);
 
-                if (genericTypeArgument != null)
+                if (genericArgumentType != null)
                 {
                     var collection = dynamicMember.GetValue(instance);
 
-                    if (collection == null)
+                    if (collection is null)
                     {
                         try
                         {
@@ -174,7 +174,7 @@ namespace De.Hochstaetter.CommandLine
                         value = Convert.ChangeType(true, memberType, parameters.Culture);
                     }
 
-                    if (genericTypeArgument != null)
+                    if (!(genericArgumentType is null))
                     {
                         dynamicMember.GetValue(instance).Add(value);
                     }
