@@ -5,16 +5,27 @@
     <RootNamespace>De.Hochstaetter.CommandLine</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Christoph Hochstätter</Authors>
-    <Description>GetOpt .NET is a command line parser that resembles the logic of POSIX getopt, getopt_long and getopt_long_only for .NET</Description>
+    <Description>GetOpt .NET is a command line parser that resembles the logic of POSIX getopt, getopt_long and getopt_long_only for .NET but has much more features
+
+* Convert option arguments to .NET type (int, double, enum, bool, ...)
+* Set minimum and maximum values for option arguments
+* Regex checking of option arguments
+* Custom Validators for option arguments
+* Custom Actions performed for each option
+* Simply add the GetOpt Attribute to your fields and properties and your command line arguments set them automatically
+* Options specified multiple times can be mapped to ICollection&lt;T&gt;
+* Automatic help generation
+* ...
+</Description>
     <Copyright>Copyright (c) 2020, Christoph Hochstätter</Copyright>
-    <PackageProjectUrl>https://github.com/christoh/getopt/</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/christoh/getopt/wiki</PackageProjectUrl>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/christoh/getopt/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageId>GetOpt.NET</PackageId>
     <Product>GetOpt .NET</Product>
     <AssemblyName>GetOpt.NET</AssemblyName>
-    <Version>0.9.1</Version>
+    <Version>0.9.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
