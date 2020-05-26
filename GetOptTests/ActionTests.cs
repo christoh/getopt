@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using De.Hochstaetter.CommandLine;
-using De.Hochstaetter.CommandLine.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace De.Hochstaetter.GetOptTests

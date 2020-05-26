@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace De.Hochstaetter.CommandLine.Models
+namespace De.Hochstaetter.CommandLine
 {
     [Flags]
     public enum ParseFlags

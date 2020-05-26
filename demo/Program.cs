@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using De.Hochstaetter.CommandLine;
-using De.Hochstaetter.CommandLine.Attributes;
-using De.Hochstaetter.CommandLine.Exceptions;
-using De.Hochstaetter.CommandLine.Models;
 
 namespace De.Hochstaetter.Commandline.Demo
 {

@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace De.Hochstaetter.CommandLine.Models
+namespace De.Hochstaetter.CommandLine
 {
     public class Parameters
     {

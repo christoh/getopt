@@ -4,9 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using De.Hochstaetter.CommandLine.Attributes;
-using De.Hochstaetter.CommandLine.Exceptions;
-using De.Hochstaetter.CommandLine.Models;
 
 namespace De.Hochstaetter.CommandLine
 {

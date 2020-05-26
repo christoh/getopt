@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using De.Hochstaetter.CommandLine;
-using De.Hochstaetter.CommandLine.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace De.Hochstaetter.GetOptTests

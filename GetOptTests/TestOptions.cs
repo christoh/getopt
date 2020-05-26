@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using De.Hochstaetter.CommandLine.Models;
+using De.Hochstaetter.CommandLine;
 
 namespace De.Hochstaetter.GetOptTests
 {

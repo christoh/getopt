@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace De.Hochstaetter.CommandLine.Attributes
+namespace De.Hochstaetter.CommandLine
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class GetOptAttribute : Attribute

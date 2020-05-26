@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using De.Hochstaetter.CommandLine.Exceptions;
 
-namespace De.Hochstaetter.CommandLine.Models
+namespace De.Hochstaetter.CommandLine
 {
     public delegate bool Validator(string stringArgument, object argument);
 
@@ -25,7 +24,7 @@ namespace De.Hochstaetter.CommandLine.Models
         /// <param name="tag">An optional tag that can be attached to the <see cref="OptionDefinition"/>.</param>
         /// <param name="help">A line of help text what this option is good for.</param>
         /// <param name="argumentName">A name for the option argument used in help. Only used if <paramref name="argumentType"/> and <param name="help"/> are not null</param>
-        /// <param name="validator">An optional custom <see cref="Models.Validator"/>. A <see cref="GetOptException"/> is thrown if the <see cref="Validator"/> returns false.</param>
+        /// <param name="validator">An optional custom <see cref="CommandLine.Validator"/>. A <see cref="GetOptException"/> is thrown if the <see cref="Validator"/> returns false.</param>
         public OptionDefinition
         (
             string longName = null,

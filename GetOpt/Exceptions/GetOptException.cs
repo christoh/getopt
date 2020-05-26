@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using De.Hochstaetter.CommandLine.Models;
 
-namespace De.Hochstaetter.CommandLine.Exceptions
+namespace De.Hochstaetter.CommandLine
 {
     public class GetOptException : ArgumentException
     {

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection.Metadata;
 using De.Hochstaetter.CommandLine;
-using De.Hochstaetter.CommandLine.Attributes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace De.Hochstaetter.GetOptTests

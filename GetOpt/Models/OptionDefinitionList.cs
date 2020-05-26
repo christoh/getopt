@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace De.Hochstaetter.CommandLine.Models
+namespace De.Hochstaetter.CommandLine
 {
     public class OptionDefinitionList : ObservableCollection<OptionDefinition>
     {
